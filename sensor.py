@@ -6,6 +6,14 @@ class Sensor:
         self.ser = serial.Serial(port=port, baudrate=baudrate, timeout=timeout)
         self.cmd = ""
         self.output = ""
+        
+    def setAllOff(self):
+        self.ser.write(b'set blue 0 ')
+        self.ser.write(b'set red 0 ')
+        self.ser.write(b'set green 0 ')
+        self.ser.write(b'set rgb_blue 0 ')
+        self.ser.write(b'set rgb_red 0 ')
+        self.ser.write(b'set rgb_green 0 ')
     
     def setBlue(self, state):
         if state:

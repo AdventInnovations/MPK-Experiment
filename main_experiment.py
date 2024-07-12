@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 
 
+
 class Experiment:
     def __init__(self):
         
@@ -12,6 +13,20 @@ class Experiment:
         self.currentTime = 0.0
         self.startTime = 0.0
 
+   
+    def StoreData(self, name):
+        files = os.listdir(f"{os.path.dirname(__file__)}/data/diode")
+        if len(files) != 0:
+            if not os.path.exists(f"{os.path.dirname(__file__)}/recordedData/{name}"):
+                os.system(f"mkdir -p {os.path.dirname(__file__)}/recordedData/{name}")
+            folder = os.listdir(f"{os.path.dirname(__file__)}/recordedData/{name}")
+            os.system(f"mkdir -p {os.path.dirname(__file__)}/recordedData/{name}/trial{len(folder)}/diode")
+            time.sleep(1)
+            os.system(f"cp -r {os.path.dirname(__file__)}/data/diode/* {os.path.dirname(__file__)}/recordedData/{name}/trial{len(folder)}/diode")
+            os.system(f"mkdir -p {os.path.dirname(__file__)}/recordedData/{name}/trial{len(folder)}/transistor")
+            time.sleep(1)
+            os.system(f"cp -r {os.path.dirname(__file__)}/data/transistor/* {os.path.dirname(__file__)}/recordedData/{name}/trial{len(folder)}/transistor")
+        
    
     def recordLight(self, light, file, timer, rate, sensor):
         if sensor == "diode":
@@ -39,9 +54,11 @@ class Experiment:
             self.ser.stopRecording()
             light(False)
         
-    def startExperiment(self, timeBetween, rate):
+    def startExperiment(self, timeBetween, rate, name):
         
         self.ser = Sensor("/dev/ttyACM0", 115200, 1)
+        self.ser.setAllOff()
+        time.sleep(1)
         
         self.recordLight(self.ser.setBlue, "blue.txt", timeBetween, rate, "diode")
         self.recordLight(self.ser.setGreen, "green.txt", timeBetween, rate, "diode")
@@ -57,12 +74,15 @@ class Experiment:
         self.recordLight(self.ser.setGreenRGB, "rgb_green.txt", timeBetween, rate, "transistor")
         self.recordLight(self.ser.setRedRGB, "rgb_red.txt", timeBetween, rate, "transistor")
         
+        self.StoreData(name)
+        
     def plotData(self, sensor):
         data = {}
        
         files = os.listdir(f"{os.path.dirname(__file__)}/data/{sensor}")
         for i in files:
             with open(f"{os.path.dirname(__file__)}/data/{sensor}/{i}", "r") as f:
+               
                 data[i] = f.read().replace('\n', " ").split(" ")[0:-1]
         
         X = []
@@ -71,25 +91,31 @@ class Experiment:
         plt.figure()
         for i in data.keys():
             point = 0
-            
+           
             for j in data[i]:
-                X.append(point)
-                Y.append(int(j))
-                point += 1
+                if j != '':
+                    X.append(point)
+                    Y.append(int(j))
+                    point += 1
             plt.plot(X,Y, label=f"{files[fileCount][0:-4]}")
             plt.title(sensor)
             X = []
             Y = []
             fileCount += 1
+        
         plt.legend()
-        plt.show()
+        
         
 
 if __name__ == "__main__":
     ex = Experiment()
-    print("Start Experiment")
-    ex.startExperiment(10, 1)
-    print("Stop Experiment")
-    ex.plotData("diode")
-    ex.plotData("transistor")
-
+    for i in range(3):
+        print("Start Experiment")
+        ex.startExperiment(20, 0.1, "P_8Ml")
+        print("Stop Experiment")
+   
+    # ex.plotData("diode")
+    # ex.plotData("transistor")
+    
+    # plt.show()
+ 
