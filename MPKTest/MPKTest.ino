@@ -4,9 +4,11 @@ int rgb_red = 4;
 int blue = 8;
 int red = 7;
 int green = 6;
-int sensor = A0;
+int diode_sensor = A0;
+int transistor_sensor = A2;
 
-bool send_sensor_data = false;
+bool send_diode_data = false;
+bool send_transistor_data = false;
 String cmd;
 String color;
 String val;
@@ -65,21 +67,30 @@ void loop() {
         digitalWrite(green, val.toInt());
       }
     }
-    else if (cmd == "start")
+    else if (cmd == "start_diode")
     {
-      send_sensor_data = true;
+      send_transistor_data = false;
+      send_diode_data = true;
+    }
+    else if (cmd == "start_transistor")
+    {
+       send_transistor_data = true;
+      send_diode_data = false;
     }
     else if (cmd == "stop")
     {
-      send_sensor_data = false;
+      send_transistor_data = false;
+      send_diode_data = false;
     }
     
   }
 
-  if (send_sensor_data)
+  if (send_diode_data)
   {
-    Serial.println(analogRead(sensor));
+    Serial.println(analogRead(diode_sensor));
   }
+  else if (send_transistor_data)
+  Serial.println(analogRead(transistor_sensor));
   cmd = "";
   val = "";
   color = "";

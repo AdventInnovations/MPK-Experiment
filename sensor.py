@@ -43,9 +43,12 @@ class Sensor:
         else:
             self.ser.write(b"set rgb_red 0 ")
             
-    def StartRecording(self):
-        self.ser.write(b"start ")
+    def StartRecordingDiode(self):
+        self.ser.write(b"start_diode ")
     
+    def StartRecordingTransistor(self):
+        self.ser.write(b"start_transistor ")
+        
     def stopRecording(self):
         self.ser.write(b"stop ")
         
