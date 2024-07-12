@@ -84,8 +84,6 @@ class Experiment:
         plt.legend()
         plt.show()
         
-        
-                
 
 if __name__ == "__main__":
     ex = Experiment()
